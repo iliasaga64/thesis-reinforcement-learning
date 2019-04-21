@@ -2,10 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as pl
 import matplotlib.dates as mdates
 
-coin = ["ETC","BCH","DASH","DGB","ETH","FCT","GNT","LTC","rev_USDT","STR","XEM","XMR","XRP","ZEC"]
+coin = ["ETC", "BCH", "DASH", "DGB", "ETH", "FCT", "GNT", "LTC", "rev_USDT", 
+        "STR", "XEM", "XMR", "XRP", "ZEC"]
 
 for i in coin:
-    df      = pd.read_csv("C:\\Users\\Ilyas Agakishiev\\Desktop\\Database\\" + i + ".csv")
+    # Import from "Database"
+    df      = pd.read_csv("<path>/" + i + ".csv")
     df.date = df.date.astype(int)
     df      = df[df.date % 900 == 0]
     df      = df.sort_values(by = "date")
@@ -13,7 +15,7 @@ for i in coin:
     df      = df[df.date >= "07/01/2015"]
     df      = df[df.date < "11/01/2018"]
     
-    fig, ax = pl.subplots(figsize=(6,4))
+    fig, ax = pl.subplots(figsize = (6, 4))
     pl.plot(df.date, df.close, color = "blue", linewidth = 0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%y"))
     pl.xlabel("Time") 
