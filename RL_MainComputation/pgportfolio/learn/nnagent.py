@@ -7,46 +7,35 @@ import pgportfolio.learn.network as network
 
 class NNAgent:
     def __init__(self, config, restore_dir=None, device="cpu"):
-        self.__config = config
-        self.__coin_number = config["input"]["coin_number"]
-        self.__net = network.CNN(config["input"]["feature_number"],
-                                 self.__coin_number,
-                                 config["input"]["window_size"],
-                                 config["layers"],
-                                 device=device)
-        self.__global_step = tf.Variable(0, trainable=False)
-        self.__train_operation = None
-        self.__y = tf.placeholder(tf.float32, shape=[None,
-                                                     self.__config["input"]["feature_number"],
-                                                     self.__coin_number])
-        #self.__future_price = tf.concat([tf.ones([self.__net.input_num, 1]),
-        #                               self.__y[:, 0, :]], 1)    ##with bias
-        self.__future_price = self.__y[:, 0, :]     ##no bias
-        self.__future_omega = (self.__future_price * self.__net.output) /\
-                              (tf.reduce_sum(self.__future_price * self.__net.output, axis=1)[:, None]+tf.constant(1.0)-tf.reduce_sum(self.__net.output,axis=1)[:, None])
-        # tf.assert_equal(tf.reduce_sum(self.__future_omega, axis=1), tf.constant(1.0))
-        self.__commission_ratio = self.__config["trading"]["trading_consumption"]
-        #self.__pv_vector = tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]) *\
-        #                   (tf.concat([tf.ones(1), self.__pure_pc()], axis=0))    ##standard
-        #self.__pv_vector = tf.add(tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]), tf.ones(tf.shape(self.__pure_pc())+1)) * (tf.concat([tf.ones(1), self.__pure_pc()], axis=0))    ##short
-        self.__pv_vector = tf.add(tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]),tf.constant(1.0)-tf.reduce_sum(self.__net.output,axis=1))*tf.concat([tf.ones(1), self.__pure_pc()], axis=0)# *\
-                          # (tf.concat([tf.ones(1), self.__pure_pc()], axis=0))+tf.constant(1.0)    ##leverage
-        #self.__pv_vector = tf.subtract(tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]) ,tf.reduce_sum(self.__net.output)-tf.constant(1.0))   ##leverage
-        self.__log_mean_free = tf.reduce_mean(tf.log(tf.add(tf.reduce_sum(self.__net.output * self.__future_price,
-                                                                   reduction_indices=[1]),tf.constant(1.0)-tf.reduce_sum(self.__net.output,axis=1))))
-        self.__portfolio_value = tf.reduce_prod(self.__pv_vector)
-        #self.__portfolio_value = tf.reduce_min(self.__pv_vector)
-        self.__mean = tf.reduce_mean(self.__pv_vector)
-        self.__log_mean = tf.reduce_mean(tf.log(self.__pv_vector))
-        #self.__log_mean = tf.reduce_mean(self.__pv_vector)
+        self.__config             = config
+        self.__coin_number        = config["input"]["coin_number"]
+        self.__net                = network.CNN(config["input"]["feature_number"],
+                                                       self.__coin_number,
+                                                       config["input"]["window_size"],
+                                                       config["layers"],
+                                                       device=device)
+        self.__global_step        = tf.Variable(0, trainable=False)
+        self.__train_operation    = None
+        self.__y                  = tf.placeholder(tf.float32, shape=[None,
+                                                   self.__config["input"]["feature_number"],
+                                                   self.__coin_number])
+        self.__future_price       = self.__y[:, 0, :]     ##no bias
+        self.__future_omega       = (self.__future_price * self.__net.output) /\
+                                    (tf.reduce_sum(self.__future_price * self.__net.output, axis=1)[:, None]+tf.constant(1.0)-tf.reduce_sum(self.__net.output,axis=1)[:, None])
+        self.__commission_ratio   = self.__config["trading"]["trading_consumption"]
+        self.__pv_vector          = tf.add(tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]),tf.constant(1.0) - tf.reduce_sum(self.__net.output,axis=1)) * tf.concat([tf.ones(1), self.__pure_pc()], axis=0)# *\
+        self.__log_mean_free      = tf.reduce_mean(tf.log(tf.add(tf.reduce_sum(self.__net.output * self.__future_price,reduction_indices=[1]),tf.constant(1.0)-tf.reduce_sum(self.__net.output,axis=1))))
+        self.__portfolio_value    = tf.reduce_prod(self.__pv_vector)
+        self.__mean               = tf.reduce_mean(self.__pv_vector)
+        self.__log_mean           = tf.reduce_mean(tf.log(self.__pv_vector))
         self.__standard_deviation = tf.sqrt(tf.reduce_mean((self.__pv_vector - self.__mean) ** 2))
-        self.__sharp_ratio = (self.__mean - 1) / self.__standard_deviation
-        self.__loss = self.__set_loss_function()
-        self.__train_operation = self.init_train(learning_rate=self.__config["training"]["learning_rate"],
-                                                 decay_steps=self.__config["training"]["decay_steps"],
-                                                 decay_rate=self.__config["training"]["decay_rate"],
-                                                 training_method=self.__config["training"]["training_method"])
-        self.__saver = tf.train.Saver()
+        self.__sharp_ratio        = (self.__mean - 1) / self.__standard_deviation
+        self.__loss               = self.__set_loss_function()
+        self.__train_operation    = self.init_train(learning_rate   = self.__config["training"]["learning_rate"],
+                                                    decay_steps     = self.__config["training"]["decay_steps"],
+                                                    decay_rate      = self.__config["training"]["decay_rate"],
+                                                    training_method = self.__config["training"]["training_method"])
+        self.__saver              = tf.train.Saver()
         if restore_dir:
             self.__saver.restore(self.__net.session, restore_dir)
         else:
@@ -111,8 +100,6 @@ class NNAgent:
         def loss_function7():
             mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
             return -mean/(tf.sqrt(var+1e-10))            
-            #return -tf.reduce_mean(tf.log(self.pv_vector)) + \
-            #       LAMBDA * tf.reduce_mean(tf.reduce_sum(-tf.log(1 + 1e-6 - self.__net.output), reduction_indices=[1]))
 
         def tf_while_condition(x, loop_counter):
             return tf.not_equal(loop_counter, 0)
@@ -125,57 +112,18 @@ class NNAgent:
 
         def with_last_w():
             mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
-            ##return -mean/(tf.sqrt(var+1e-10))
             cp = tf.cumprod(self.pv_vector)
             cm, _ = tf.while_loop(cond=tf_while_condition, body=tf_while_body, loop_vars=(cp, tf.size(cp)))
             mdd = tf.reduce_max((cm-cp)/cm)
-            #return -mean/(mdd+tf.constant(0.1))
             return -mean+tf.square(tf.maximum(mdd-tf.constant(0.1),0))
-            #return -tf.reduce_mean(tf.log(tf.reduce_sum(self.__net.output[:] * self.__future_price, reduction_indices=[1])
-            #                              -tf.reduce_sum(tf.abs(self.__net.output[:, 1:] - self.__net.previous_w)
-            #                                             *self.__commission_ratio, reduction_indices=[1])))
         
    
         def loss_function_leverage():
             mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
-            ##return -mean/(tf.sqrt(var+1e-10))
             cp = tf.cumprod(self.pv_vector)
             cm, _ = tf.while_loop(cond=tf_while_condition, body=tf_while_body, loop_vars=(cp, tf.size(cp)))
             mdd = tf.reduce_max(cm/cp)-tf.constant(1.0)
             return -mean/mdd
-            #dd_target = tf.constant(0.1)
-            #portfolio_values = self.pv_vector#tf.placeholder(tf.float32, shape=[self.pv_vector.get_shape().as_list()[0]], name="portfolio_values")
-            #drawdown_list = self.pv_vector#tf.placeholder(tf.float32, shape=[self.pv_vector.get_shape().as_list()[0]],name="drawdown_list")
-            #max_benefit = tf.Variable(0.0, name="max_benefit")
-            #il=self.pv_vector.get_shape().as_list()[0]
-            #if il is None:
-            #    il=0
-            #for i in range(il):
-            #    if i > 0:
-            #        portfolio_values[i] = portfolio_values[i - 1] * self.pv_vector[i]
-            #    else:
-            #        portfolio_values[i] = self.pv_vector[i]
-            #    if portfolio_values[i] > max_benefit:
-            #        max_benefit = portfolio_values[i]
-            #        drawdown_list[i] = 0.0
-            #    else:
-            #        drawdown_list[i] = (max_benefit - portfolio_values[i] / max_benefit)
-            #for i in range(il):
-            #    portfolio_values[i] = tf.cond(i>tf.constant(0.0),lambda:portfolio_values[i - 1] * self.pv_vector[i], lambda: self.pv_vector[i])
-            #    max_benefit = tf.cond(portfolio_values[i] > max_benefit,lambda:portfolio_values[i], lambda:max_benefit)
-            #    drawdown_list[i] = tf.cond(portfolio_values[i] > max_benefit,lambda:tf.constant(0.0), lambda:(max_benefit - portfolio_values[i] / max_benefit))    
-            #dd = tf.Variable(0.0)
-            #dd = tf.reduce_max(drawdown_list)   
-            #if dd is None:
-            #    dd = 0.0
-            #return -tf.reduce_mean(tf.log(self.pv_vector))# + tf.maximum(dd - dd_target, 0.0)*1000.0
-            ##mean, var = tf.nn.moments(tf.log(tf.maximum(self.pv_vector,1e-20)), axes=[0])
-            ##return -mean/(tf.sqrt(var))
-            #return -tf.reduce_mean(tf.maximum(tf.log(self.pv_vector),tf.constant(-10000.0)*(tf.reduce_min(self.pv_vector)+tf.constant(1.0))))
-            #if tf.reduce_min(self.pv_vector)<=tf.constant(0.0):
-            #    return (tf.constant(-100)*tf.reduce_min(self.pv_vector))+tf.constant(1.0)
-            #else: 
-            #    return -tf.reduce_mean(tf.log(self.pv_vector))
 
         loss_function = loss_function5
         if self.__config["training"]["loss_function"] == "loss_function4":
@@ -238,8 +186,7 @@ class NNAgent:
                                                     self.__y: y,
                                                     self.__net.previous_w: last_w,
                                                     self.__net.input_num: x.shape[0]})
-        #setw(results[-1][:, 1:])
-        #return results[:-1]
+
         setw(results[-1][:, :])
         return results[:-1]
 
@@ -249,27 +196,10 @@ class NNAgent:
 
     # consumption vector (on each periods)
     def __pure_pc(self):
-        c = self.__commission_ratio
-        w_t = self.__future_omega[:self.__net.input_num-1]  # rebalanced
+        c    = self.__commission_ratio
+        w_t  = self.__future_omega[:self.__net.input_num-1]  # rebalanced
         w_t1 = self.__net.output[1:self.__net.input_num]
-        #mu = 1 - tf.reduce_sum(tf.abs(w_t1[:, 1:]-w_t[:, 1:]), axis=1)*c
-        mu = 1 - tf.reduce_sum(tf.abs(w_t1-w_t), axis=1)*c
-        """
-        mu = 1-3*c+c**2
-
-        def recurse(mu0):
-            factor1 = 1/(1 - c*w_t1[:, 0])
-            if isinstance(mu0, float):
-                mu0 = mu0
-            else:
-                mu0 = mu0[:, None]
-            factor2 = 1 - c*w_t[:, 0] - (2*c - c**2)*tf.reduce_sum(
-                tf.nn.relu(w_t[:, 1:] - mu0 * w_t1[:, 1:]), axis=1)
-            return factor1*factor2
-
-        for i in range(20):
-            mu = recurse(mu)
-        """
+        mu   = 1 - tf.reduce_sum(tf.abs(w_t1-w_t), axis=1)*c
         return mu
 
     # the history is a 3d matrix, return a asset vector
@@ -282,5 +212,4 @@ class NNAgent:
         history = history[np.newaxis, :, :, :]
         return np.squeeze(self.session.run(self.__net.output, feed_dict={self.__net.input_tensor: history,
                                                                          self.__net.previous_w: last_w[np.newaxis, :],
-                                                                         #self.__net.previous_w: last_w[np.newaxis, 1:],
                                                                          self.__net.input_num: 1}))

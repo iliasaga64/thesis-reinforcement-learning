@@ -8,8 +8,8 @@ def max_drawdown(pc_array):
     @:return: max drawdown
     """
     portfolio_values = []
-    drawdown_list = []
-    max_benefit = 0
+    drawdown_list    = []
+    max_benefit      = 0
     for i in range(len(pc_array)):
         if i > 0:
             portfolio_values.append(portfolio_values[i - 1] * pc_array[i])
@@ -29,11 +29,11 @@ def sharpe(pc_array):
     @:return: sharpe ratio
     """
     pc_array = pc_array-1.0
-    return np.mean(pc_array)/np.std(pc_array)
+    return np.mean(pc_array) / np.std(pc_array)
 
 
 def moving_accumulate(pc_array, n=48):
-    acc = np.cumprod(pc_array)
+    acc     = np.cumprod(pc_array)
     acc[n:] = acc[n:] / acc[:-n]
     return acc
 

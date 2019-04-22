@@ -24,15 +24,15 @@ def execute_backtest(algo, config):
 
 def _construct_agent(algo):
     if algo.isdigit():
-        agent = None
+        agent      = None
         agent_type = "nn"
-        net_dir = "./train_package/" + algo + "/netfile"
+        net_dir    = "./train_package/" + algo + "/netfile"
     elif algo in ALGOS:
-        agent = ALGOS[algo]()
+        agent      = ALGOS[algo]()
         agent_type = "traditional"
-        net_dir = None
+        net_dir    = None
     else:
-        message = "The algorithm name "+algo+" is not support. Supported algos " \
-                                             "are " + str(list(ALGOS.keys()))
+        message    = "The algorithm name "+algo+" is not support. Supported algos " \
+                                                "are " + str(list(ALGOS.keys()))
         raise LookupError(message)
     return agent, agent_type, net_dir

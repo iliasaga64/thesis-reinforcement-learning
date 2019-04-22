@@ -17,10 +17,10 @@ class BackTest(trader.Trader):
             data_matrices = DataMatrices.create_from_config(config)
         else:
             raise ValueError()
-        self.__test_set = data_matrices.get_test_set()
-        self.__test_length = self.__test_set["X"].shape[0]
-        self._total_steps = self.__test_length
-        self.__test_pv = 1.0
+        self.__test_set       = data_matrices.get_test_set()
+        self.__test_length    = self.__test_set["X"].shape[0]
+        self._total_steps     = self.__test_length
+        self.__test_pv        = 1.0
         self.__test_pc_vector = []
 
     @property
@@ -70,19 +70,13 @@ class BackTest(trader.Trader):
     def trade_by_strategy(self, omega):
         logging.info("the step is {}".format(self._steps))
         logging.debug("the raw omega is {}".format(omega))
-        #future_price = np.concatenate((np.ones(1), self.__get_matrix_y()))
-        future_price = self.__get_matrix_y()
-        #logging.debug("1")
-        pv_after_commission = calculate_pv_after_commission(omega, self._last_omega, self._commission_rate)
-        #logging.debug("2")
-        portfolio_change = pv_after_commission * (np.dot(omega, future_price)+1.0-sum(omega))
-        #logging.debug("3")
+        future_price         = self.__get_matrix_y()
+        pv_after_commission  = calculate_pv_after_commission(omega, self._last_omega, self._commission_rate)
+        portfolio_change     = pv_after_commission * (np.dot(omega, future_price)+1.0-sum(omega))
         self._total_capital *= portfolio_change
-        #logging.debug("4")
-        self._last_omega = pv_after_commission * omega * \
-                           future_price /\
-                           portfolio_change
-        #logging.debug("5")
+        self._last_omega     = pv_after_commission * omega * \
+                               future_price /\
+                               portfolio_change
         logging.debug("the portfolio change this period is : {}".format(portfolio_change))
         self.__test_pc_vector.append(portfolio_change)
 

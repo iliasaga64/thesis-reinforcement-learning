@@ -39,26 +39,26 @@ class TraderTrainer:
         :param agent: the nnagent object. If this is provides, the trainer will not
         create a new agent by itself. Therefore the restore_dir will not affect anything.
         """
-        self.config = config
+        self.config       = config
         self.train_config = config["training"]
         self.input_config = config["input"]
-        self.save_path = save_path
-        self.best_metric = 0
+        self.save_path    = save_path
+        self.best_metric  = 0
         np.random.seed(config["random_seed"])
 
         self.__window_size = self.input_config["window_size"]
         self.__coin_number = self.input_config["coin_number"]
-        self.__batch_size = self.train_config["batch_size"]
-        self.__snap_shot = self.train_config["snap_shot"]
+        self.__batch_size  = self.train_config["batch_size"]
+        self.__snap_shot   = self.train_config["snap_shot"]
         config["input"]["fake_data"] = fake_data
 
-        self._matrix = DataMatrices.create_from_config(config)
+        self._matrix  = DataMatrices.create_from_config(config)
 
         self.test_set = self._matrix.get_test_set()
         if not config["training"]["fast_train"]:
             self.training_set = self._matrix.get_training_set()
         self.upperbound_validation = 1
-        self.upperbound_test = 1
+        self.upperbound_test       = 1
         tf.set_random_seed(self.config["random_seed"])
         self.device = device
         if agent:
@@ -134,11 +134,11 @@ class TraderTrainer:
 
 
     def next_batch(self):
-        batch = self._matrix.next_batch()
-        batch_input = batch["X"]
-        batch_y = batch["y"]
+        batch        = self._matrix.next_batch()
+        batch_input  = batch["X"]
+        batch_y      = batch["y"]
         batch_last_w = batch["last_w"]
-        batch_w = batch["setw"]
+        batch_w      = batch["setw"]
         return batch_input, batch_y, batch_last_w, batch_w
 
     def __init_tensor_board(self, log_file_dir):
@@ -153,12 +153,12 @@ class TraderTrainer:
         grads = tf.gradients(self._agent.loss, tf.trainable_variables())
         for grad in grads:
             tf.summary.histogram(grad.name + '/gradient', grad)
-        self.summary = tf.summary.merge_all()
-        location = log_file_dir
+        self.summary        = tf.summary.merge_all()
+        location            = log_file_dir
         self.network_writer = tf.summary.FileWriter(location + '/network',
                                                     self._agent.session.graph)
-        self.test_writer = tf.summary.FileWriter(location + '/test')
-        self.train_writer = tf.summary.FileWriter(location + '/train')
+        self.test_writer    = tf.summary.FileWriter(location + '/test')
+        self.train_writer   = tf.summary.FileWriter(location + '/train')
 
     def __print_upperbound(self):
         upperbound_test = self.calculate_upperbound(self.test_set["y"])
@@ -179,13 +179,13 @@ class TraderTrainer:
                 self.__init_tensor_board(log_file_dir)
         starttime = time.time()
 
-        total_data_time = 0
+        total_data_time     = 0
         total_training_time = 0
         for i in range(self.train_config["steps"]):
-            step_start = time.time()
+            step_start         = time.time()
             x, y, last_w, setw = self.next_batch()
-            finish_data = time.time()
-            total_data_time += (finish_data - step_start)
+            finish_data        = time.time()
+            total_data_time   += (finish_data - step_start)
             self._agent.train(x, y, last_w=last_w, setw=setw)
             total_training_time += time.time() - finish_data
             if i % 1000 == 0 and log_file_dir:
@@ -197,7 +197,7 @@ class TraderTrainer:
 
         if self.save_path:
             self._agent.recycle()
-            best_agent = NNAgent(self.config, restore_dir=self.save_path)
+            best_agent  = NNAgent(self.config, restore_dir=self.save_path)
             self._agent = best_agent
 
         pv, log_mean = self._evaluate("test", self._agent.portfolio_value, self._agent.log_mean)

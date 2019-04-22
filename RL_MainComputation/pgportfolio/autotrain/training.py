@@ -76,6 +76,6 @@ def train_all(processes=1, device="cpu"):
                 alive = p.is_alive()
                 if not alive:
                     pool.remove(p)
-            if len(pool)<processes:
+            if len(pool) < processes:
                 wait = False
     print("All the Tasks are Over")

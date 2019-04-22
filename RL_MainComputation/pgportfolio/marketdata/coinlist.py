@@ -13,12 +13,12 @@ class CoinList(object):
     def __init__(self, end, volume_average_days=1, volume_forward=0):
         self._polo = Poloniex()
         # connect the internet to accees volumes
-        vol = self._polo.marketVolume()
-        ticker = self._polo.marketTicker()
-        pairs = []
-        coins = []
+        vol     = self._polo.marketVolume()
+        ticker  = self._polo.marketTicker()
+        pairs   = []
+        coins   = []
         volumes = []
-        prices = []
+        prices  = []
 
         logging.info("select coin online from %s to %s" % (datetime.fromtimestamp(end-(DAY*volume_average_days)-
                                                                                   volume_forward).
@@ -60,9 +60,9 @@ class CoinList(object):
 
     # get several days volume
     def __get_total_volume(self, pair, global_end, days, forward):
-        start = global_end-(DAY*days)-forward
-        end = global_end-forward
-        chart = self.get_chart_until_success(pair=pair, period=DAY, start=start, end=end)
+        start  = global_end-(DAY*days)-forward
+        end    = global_end-forward
+        chart  = self.get_chart_until_success(pair=pair, period=DAY, start=start, end=end)
         result = 0
         for one_day in chart:
             if pair.startswith("BTC_"):

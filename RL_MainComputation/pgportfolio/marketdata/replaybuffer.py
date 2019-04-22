@@ -11,9 +11,9 @@ class ReplayBuffer:
         """
         self.__coin_number = coin_number
         self.__experiences = [Experience(i) for i in range(start_index, end_index)]
-        self.__is_permed = is_permed
+        self.__is_permed   = is_permed
         # NOTE: in order to achieve the previous w feature
-        self.__batch_size = batch_size
+        self.__batch_size  = batch_size
         self.__sample_bias = sample_bias
         logging.debug("buffer_bias is %f" % sample_bias)
 

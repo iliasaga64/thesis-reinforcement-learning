@@ -62,17 +62,17 @@ class DataMatrices:
         self.__divide_data(test_portion, portion_reversed)
 
         self._portion_reversed = portion_reversed
-        self.__is_permed = is_permed
+        self.__is_permed       = is_permed
 
         self.__batch_size = batch_size
-        self.__delta = 0  # the count of global increased
-        end_index = self._train_ind[-1]
-        self.__replay_buffer = rb.ReplayBuffer(start_index=self._train_ind[0],
-                                               end_index=end_index,
-                                               sample_bias=buffer_bias_ratio,
-                                               batch_size=self.__batch_size,
-                                               coin_number=self.__coin_no,
-                                               is_permed=self.__is_permed)
+        self.__delta      = 0  # the count of global increased
+        end_index         = self._train_ind[-1]
+        self.__replay_buffer = rb.ReplayBuffer(start_index = self._train_ind[0],
+                                               end_index   = end_index,
+                                               sample_bias = buffer_bias_ratio,
+                                               batch_size  = self.__batch_size,
+                                               coin_number = self.__coin_no,
+                                               is_permed   = self.__is_permed)
 
         logging.info("the number of training examples is %s"
                      ", of test examples is %s" % (self._num_train_samples, self._num_test_samples))
@@ -89,25 +89,25 @@ class DataMatrices:
         @:param config: config dictionary
         @:return: a DataMatrices object
         """
-        config = config.copy()
+        config       = config.copy()
         input_config = config["input"]
         train_config = config["training"]
-        start = parse_time(input_config["start_date"])
-        end = parse_time(input_config["end_date"])
-        return DataMatrices(start=start,
-                            end=end,
-                            market=input_config["market"],
-                            feature_number=input_config["feature_number"],
-                            window_size=input_config["window_size"],
-                            online=input_config["online"],
-                            period=input_config["global_period"],
-                            coin_filter=input_config["coin_number"],
-                            is_permed=input_config["is_permed"],
-                            buffer_bias_ratio=train_config["buffer_biased"],
-                            batch_size=train_config["batch_size"],
-                            volume_average_days=input_config["volume_average_days"],
-                            test_portion=input_config["test_portion"],
-                            portion_reversed=input_config["portion_reversed"],
+        start        = parse_time(input_config["start_date"])
+        end          = parse_time(input_config["end_date"])
+        return DataMatrices(start               = start,
+                            end                 = end,
+                            market              = input_config["market"],
+                            feature_number      = input_config["feature_number"],
+                            window_size         = input_config["window_size"],
+                            online              = input_config["online"],
+                            period              = input_config["global_period"],
+                            coin_filter         = input_config["coin_number"],
+                            is_permed           = input_config["is_permed"],
+                            buffer_bias_ratio   = train_config["buffer_biased"],
+                            batch_size          = train_config["batch_size"],
+                            volume_average_days = input_config["volume_average_days"],
+                            test_portion        = input_config["test_portion"],
+                            portion_reversed    = input_config["portion_reversed"],
                             )
 
     @property
@@ -174,21 +174,19 @@ class DataMatrices:
 
     def __divide_data(self, test_portion, portion_reversed):
         train_portion = 1 - test_portion
-        s = float(train_portion + test_portion)
+        s             = float(train_portion + test_portion)
         if portion_reversed:
-            portions = np.array([test_portion]) / s
-            portion_split = (portions * self._num_periods).astype(int)
-            indices = np.arange(self._num_periods)
+            portions                        = np.array([test_portion]) / s
+            portion_split                   = (portions * self._num_periods).astype(int)
+            indices                         = np.arange(self._num_periods)
             self._test_ind, self._train_ind = np.split(indices, portion_split)
         else:
-            portions = np.array([train_portion]) / s
-            portion_split = (portions * self._num_periods).astype(int)
-            indices = np.arange(self._num_periods)
+            portions                        = np.array([train_portion]) / s
+            portion_split                   = (portions * self._num_periods).astype(int)
+            indices                         = np.arange(self._num_periods)
             self._train_ind, self._test_ind = np.split(indices, portion_split)
 
-        self._train_ind = self._train_ind[:-(self._window_size + 1)]
-        # NOTE(zhengyao): change the logic here in order to fit both
-        # reversed and normal version
-        self._train_ind = list(self._train_ind)
+        self._train_ind         = self._train_ind[:-(self._window_size + 1)]
+        self._train_ind         = list(self._train_ind)
         self._num_train_samples = len(self._train_ind)
-        self._num_test_samples = len(self.test_indices)
+        self._num_test_samples  = len(self.test_indices)

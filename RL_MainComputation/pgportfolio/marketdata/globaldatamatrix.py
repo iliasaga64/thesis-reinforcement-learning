@@ -54,14 +54,14 @@ class HistoryManager:
         :return a panel, [feature, coin, time]
         """
         start = int(start - (start%period))
-        end = int(end - (end%period))
+        end   = int(end - (end%period))
         coins = self.select_coins(start=end - self.__volume_forward - self.__volume_average_days * DAY,
                                   end=end-self.__volume_forward)
         self.__coins = coins
         for coin in coins:
             self.update_data(start, end, coin)
 
-        if len(coins)!=self._coin_number:
+        if len(coins) != self._coin_number:
             raise ValueError("the length of selected coins %d is not equal to expected %d"
                              % (len(coins), self._coin_number))
 
@@ -69,7 +69,7 @@ class HistoryManager:
         self.__checkperiod(period)
 
         time_index = pd.to_datetime(list(range(start, end+1, period)),unit='s')
-        panel = pd.Panel(items=features, major_axis=coins, minor_axis=time_index, dtype=np.float32)
+        panel      = pd.Panel(items=features, major_axis=coins, minor_axis=time_index, dtype=np.float32)
 
         connection = sqlite3.connect(DATABASE_DIR)
         try:
@@ -166,9 +166,9 @@ class HistoryManager:
 
     # add new history data into the database
     def update_data(self, start, end, coin):
-        connection = sqlite3.connect(DATABASE_DIR)
+        connection   = sqlite3.connect(DATABASE_DIR)
         try:
-            cursor = connection.cursor()
+            cursor   = connection.cursor()
             min_date = cursor.execute('SELECT MIN(date) FROM History WHERE coin=?;', (coin,)).fetchall()[0][0]
             max_date = cursor.execute('SELECT MAX(date) FROM History WHERE coin=?;', (coin,)).fetchall()[0][0]
 
@@ -189,10 +189,10 @@ class HistoryManager:
 
     def __fill_data(self, start, end, coin, cursor):
         chart = self._coin_list.get_chart_until_success(
-            pair=self._coin_list.allActiveCoins.at[coin, 'pair'],
-            start=start,
-            end=end,
-            period=self.__storage_period)
+            pair   = self._coin_list.allActiveCoins.at[coin, 'pair'],
+            start  = start,
+            end    = end,
+            period = self.__storage_period)
         logging.info("fill %s data from %s to %s"%(coin, datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M'),
                                             datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M')))
         for c in chart:

@@ -34,7 +34,7 @@ def pricenorm2d(m, reference_column,
                     if index > 0:
                         row[-one_position - index] = row[-index - one_position + 1] / fake_ratio
                 row[-one_position] = 1.0
-                row[-1] = fake_ratio
+                row[-1]            = fake_ratio
             else:
                 row = row / reference_column[row_number]
                 for index in range(row.shape[0] - one_position + 1):
@@ -45,12 +45,12 @@ def pricenorm2d(m, reference_column,
             output[row_number] = row
         m[:] = output[:]
     elif norm_method=="relative":
-        output = m[:, 1:]
-        divisor = m[:, :-1]
-        output = output / divisor
-        pad = np.empty((m.shape[0], 1,))
+        output         = m[:, 1:]
+        divisor        = m[:, :-1]
+        output         = output / divisor
+        pad            = np.empty((m.shape[0], 1,))
         pad.fill(np.nan)
-        m[:] = np.concatenate((pad, output), axis=1)
+        m[:]           = np.concatenate((pad, output), axis=1)
         m[np.isnan(m)] = fake_ratio
     else:
         raise ValueError("there is no norm morthod called %s" % norm_method)

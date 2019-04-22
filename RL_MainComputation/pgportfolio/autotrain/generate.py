@@ -19,8 +19,8 @@ def add_packages(config, repeat=1):
     indexes = []
 
     for i in range(repeat):
-        max_dir_num += 1
-        directory = package_dir+"/"+str(max_dir_num)
+        max_dir_num          += 1
+        directory             = package_dir+"/"+str(max_dir_num)
         config["random_seed"] = i
         os.makedirs(directory)
         indexes.append(max_dir_num)

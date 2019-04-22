@@ -15,16 +15,16 @@ class NeuralNetWork:
             tf_config.gpu_options.per_process_gpu_memory_fraction = 0
         else:
             tf_config.gpu_options.per_process_gpu_memory_fraction = 0.2
-        self.input_num = tf.placeholder(tf.int32, shape=[])
+        self.input_num    = tf.placeholder(tf.int32, shape=[])
         self.input_tensor = tf.placeholder(tf.float32, shape=[None, feature_number, rows, columns])
-        self.previous_w = tf.placeholder(tf.float32, shape=[None, rows])
-        self._rows = rows
-        self._columns = columns
+        self.previous_w   = tf.placeholder(tf.float32, shape=[None, rows])
+        self._rows        = rows
+        self._columns     = columns
 
-        self.layers_dict = {}
-        self.layer_count = 0
+        self.layers_dict  = {}
+        self.layer_count  = 0
 
-        self.output = self._build_network(layers)
+        self.output       = self._build_network(layers)
 
     def _build_network(self, layers):
         pass
@@ -40,13 +40,11 @@ class CNN(NeuralNetWork):
         self.layers_dict[layer_type + '_' + str(self.layer_count) + '_activation'] = tensor
         self.layer_count += 1
 
-    # grenrate the operation, the forward computaion
+    # generate the operation, the forward computaion
     def _build_network(self, layers):
-        network = tf.transpose(self.input_tensor, [0, 2, 3, 1])
-        # [batch, assets, window, features]
-        network = network / network[:, :, -1, 0, None, None]
+        network  = tf.transpose(self.input_tensor, [0, 2, 3, 1])
+        network  = network / network[:, :, -1, 0, None, None]
         network1 = network         
-        #network = network-((network-tf.constant(1.0))*tf.constant(2.0))
         for layer_number, layer in enumerate(layers):
             if layer["type"] == "DenseLayer":
                 network = tflearn.layers.core.fully_connected(network,
@@ -96,138 +94,32 @@ class CNN(NeuralNetWork):
                 network = tflearn.layers.conv.avg_pool_2d(network, layer["strides"])
             elif layer["type"] == "LocalResponseNormalization":
                 network = tflearn.layers.normalization.local_response_normalization(network)
-            elif layer["type"] == "EIIE_Output":
-                width = network.get_shape()[2]
-                network = tflearn.layers.conv_2d(network, 1, [1, width], padding="valid",
-                                                 regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
-                self.add_layer_to_dict(layer["type"], network)
-                network = network[:, :, 0, 0]
-                btc_bias = tf.ones((self.input_num, 1))
-                self.add_layer_to_dict(layer["type"], network)
-                network = tf.concat([btc_bias, network], 1)
-                network = tflearn.layers.core.activation(network, activation="softmax")
-                self.add_layer_to_dict(layer["type"], network, weights=False)
-            elif layer["type"] == "Output_WithW":
-                network = tflearn.flatten(network)
-                network = tf.concat([network,self.previous_w], axis=1)
-                network = tflearn.fully_connected(network, self._rows+1,
-                                                  activation="softmax",
-                                                  regularizer=layer["regularizer"],
-                                                  weight_decay=layer["weight_decay"])
             elif layer["type"] == "EIIE_Output_WithW":
-                width = network.get_shape()[2]
-                height = network.get_shape()[1]
+                width    = network.get_shape()[2]
+                height   = network.get_shape()[1]
                 features = network.get_shape()[3]
-                network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
+                network  = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
                 network1 = tf.reshape(network1, [self.input_num, int(height), 1, int(width*features)])
-                w = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
-                network = tf.concat([network, w], axis=3)
-                network = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
+                w        = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
+                network  = tf.concat([network, w], axis=3)
+                network  = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
                                                  regularizer=layer["regularizer"],
                                                  weight_decay=layer["weight_decay"])
                 network1 = tflearn.layers.conv_2d(network1, 1, [1, 1], padding="valid",
                                                  regularizer=layer["regularizer"],
                                                  weight_decay=layer["weight_decay"])
                 self.add_layer_to_dict(layer["type"], network)
-                network = network[:, :, 0, 0]
+                network  = network[:, :, 0, 0]
                 network1 = network1[:, :, 0, 0]
-                network1=tf.contrib.layers.fully_connected(network1,1,activation_fn=tf.sigmoid)
-                network1=network1 * 2
-                #btc_bias = tf.zeros((self.input_num, 1))
-                #btc_bias = tf.get_variable("btc_bias", [1, 1], dtype=tf.float32,
-                #                       initializer=tf.zeros_initializer)
-                # self.add_layer_to_dict(layer["type"], network, weights=False)
-                #btc_bias = tf.tile(btc_bias, [self.input_num, 1])
-                #network = tf.concat([btc_bias, network], 1)
-                self.voting = network
-                self.add_layer_to_dict('voting', network, weights=False)
-                network=tflearn.layers.core.activation(network, activation="softmax")
-                network = tf.multiply(network1,network)
-                ###network = -tflearn.layers.core.activation(tf.scalar_mul(tf.constant(-1.0),network), activation="softmax")
-                self.add_layer_to_dict('softmax_layer', network, weights=False)
+                network1 = tf.contrib.layers.fully_connected(network1,1,activation_fn=tf.sigmoid)
+                network1 = network1 * 2
 
-            elif layer["type"] == "EIIE_Output_WithW_Leverage":
-                width = network.get_shape()[2]
-                height = network.get_shape()[1]
-                features = network.get_shape()[3]
-                network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
-                w = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
-                network = tf.concat([network, w], axis=3)
-                network = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
-                                                 regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
-                self.add_layer_to_dict(layer["type"], network)
-                network = network[:, :, 0, 0]
-                #btc_bias = tf.zeros((self.input_num, 1))
-                #btc_bias = tf.get_variable("btc_bias", [1, 1], dtype=tf.float32,
-                #                       initializer=tf.zeros_initializer)
-                #self.add_layer_to_dict(layer["type"], network, weights=False)
-                #btc_bias = tf.tile(btc_bias, [self.input_num, 1])
-                #network = tf.concat([btc_bias, network], 1)
                 self.voting = network
                 self.add_layer_to_dict('voting', network, weights=False)
-                network = tflearn.layers.core.activation(network, activation="softmax")
-                leverag=tf.get_variable("leverag",dtype=tf.float32,initializer=tf.constant(1.0), trainable=True,constraint=lambda t: tf.clip_by_value(t,0.1,2.0))
-                network=tf.scalar_mul(leverag,network)
+                network     = tflearn.layers.core.activation(network, activation="softmax")
+                network     = tf.multiply(network1,network)
                 self.add_layer_to_dict('softmax_layer', network, weights=False)
-                
-            elif layer["type"] == "EIIE_Output_WithW_Short":
-                width = network.get_shape()[2]
-                height = network.get_shape()[1]
-                features = network.get_shape()[3]
-                network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
-                w = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
-                network = tf.concat([network, w], axis=3)
-                network = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
-                                                 regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
-                self.add_layer_to_dict(layer["type"], network)
-                network = network[:, :, 0, 0]
-                #btc_bias = tf.zeros((self.input_num, 1))
-                #btc_bias = tf.get_variable("btc_bias", [1, 1], dtype=tf.float32,
-                #                       initializer=tf.zeros_initializer)
-                # self.add_layer_to_dict(layer["type"], network, weights=False)
-                #btc_bias = tf.tile(btc_bias, [self.input_num, 1])
-                #network = tf.concat([btc_bias, network], 1)
-                self.voting = network
-                self.add_layer_to_dict('voting', network, weights=False)
-                #network = tflearn.layers.core.activation(tf.scalar_mul(tf.constant(-1.0),network), activation="softmax")
-                #network = tflearn.layers.core.activation(network, activation="softmax")
-                ##network = tf.subtract(tflearn.layers.core.activation(network, activation="softmax"),
-                ##                      tflearn.layers.core.activation(tf.scalar_mul(tf.constant(-1.0),network),
-                ##                                                     activation="softmax"))
-                ###network=tf.nn.l2_normalize(network)
-                ###network=tf.scalar_mul(tf.constant(2.0),network)
-                network=tflearn.layers.core.activation(network, activation="tanh") 
-                #network=tf.layers.batch_normalization(network)
-                #network = -tflearn.layers.core.activation(tf.scalar_mul(tf.constant(-1.0),network), activation="softmax")
-                self.add_layer_to_dict('softmax_layer', network, weights=False)
-                
-            elif layer["type"] == "EIIE_LSTM" or\
-                            layer["type"] == "EIIE_RNN":
-                network = tf.transpose(network, [0, 2, 3, 1])
-                resultlist = []
-                reuse = False
-                for i in range(self._rows):
-                    if i > 0:
-                        reuse = True
-                    if layer["type"] == "EIIE_LSTM":
-                        result = tflearn.layers.lstm(network[:, :, :, i],
-                                                     int(layer["neuron_number"]),
-                                                     dropout=layer["dropouts"],
-                                                     scope="lstm"+str(layer_number),
-                                                     reuse=reuse)
-                    else:
-                        result = tflearn.layers.simple_rnn(network[:, :, :, i],
-                                                           int(layer["neuron_number"]),
-                                                           dropout=layer["dropouts"],
-                                                           scope="rnn"+str(layer_number),
-                                                           reuse=reuse)
-                    resultlist.append(result)
-                network = tf.stack(resultlist)
-                network = tf.transpose(network, [1, 0, 2])
-                network = tf.reshape(network, [-1, self._rows, 1, int(layer["neuron_number"])])
+            
             else:
                 raise ValueError("the layer {} not supported.".format(layer["type"]))
         return network

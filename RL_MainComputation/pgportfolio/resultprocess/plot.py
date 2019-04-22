@@ -58,11 +58,11 @@ def plot_backtest(config, algos, labels=None):
 
     start, end = _extract_test(config)
     timestamps = np.linspace(start, end, len(results[0]))
-    dates = [datetime.datetime.fromtimestamp(int(ts)-int(ts)%config["input"]["global_period"])
+    dates      = [datetime.datetime.fromtimestamp(int(ts)-int(ts)%config["input"]["global_period"])
              for ts in timestamps]
 
-    weeks = mdates.WeekdayLocator()
-    days = mdates.DayLocator()
+    weeks      = mdates.WeekdayLocator()
+    days       = mdates.DayLocator()
 
     rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"],
                   "size": 8})
@@ -111,7 +111,7 @@ def table_backtest(config, algos, labels=None, format="raw",
     @:return: a string of html or latex code
     """
     results = []
-    labels = list(labels)
+    labels  = list(labels)
     for i, algo in enumerate(algos):
         if algo.isdigit():
             portfolio_changes = _load_from_summary(algo, config)
