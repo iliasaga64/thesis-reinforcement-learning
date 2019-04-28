@@ -7,7 +7,7 @@ Description: Draws figures of all monthly coin returns (relative to Bitcoin) for
 experiments (from 07/2015 to 10/2018, if available).
 
 Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrencies
+cryptocurrency
  
 Author: Ilyas Agakishiev
 
@@ -16,4 +16,4 @@ See also: RL_MainComputation, RL_CoinFigures
 Submitted: 23.04.2019
 
 Input: 
-- df: Coin prices, contained in the CSV-files of the "Database" folder
+- df: Coin prices, contained in the CSV-files of the 'Database' folder

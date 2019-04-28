@@ -7,7 +7,7 @@ Description: Outputs a plot that displays the weight (in %) for the 5 least held
 different target drawdowns in Experiment 1. A higher value means better diversification.
 
 Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrencies
+cryptocurrency
  
 Author: Ilyas Agakishiev
 

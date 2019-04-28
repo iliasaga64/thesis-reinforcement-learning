@@ -7,7 +7,7 @@ Description: Outputs the performance of the algorithm for the test period for di
 drawdowns as a plot. Additionally plots performance of (modified) CRIX.
 
 Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrencies
+cryptocurrency
  
 Author: Ilyas Agakishiev
 
@@ -16,5 +16,5 @@ See also: RL_MainComputation, RL_Experiment1Leverage, RL_Experiment2Performance
 Submitted: 23.04.2019
 
 Input: 
-- df: Table "Performance1", which contains total capital for the algorithm and CRIX from 
+- df: Table 'Performance1', which contains total capital for the algorithm and CRIX from 
       Experiment 1 in the test period.

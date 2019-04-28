@@ -6,7 +6,7 @@ Published in: A leveraged investment strategy using Deep Reinforcement Learning
 Description: Outputs the leverage for each time period as a plot.
 
 Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrencies
+cryptocurrency
  
 Author: Ilyas Agakishiev
 
@@ -15,4 +15,4 @@ See also: RL_MainComputation, RL_Experiment2Leverage, RL_Experiment1Performance
 Submitted: 23.04.2019
 
 Input: 
-- df: Table "weights1", which contains total leverage from Experiment 1.
+- df: Table 'weights1', which contains total leverage from Experiment 1.
