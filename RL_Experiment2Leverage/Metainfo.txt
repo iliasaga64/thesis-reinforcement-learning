@@ -1,0 +1,18 @@
+
+Name of Quantlet: RL_Experiment2Leverage
+
+Published in: A leveraged investment strategy using Deep Reinforcement Learning
+
+Description: Outputs the leverage for each time period as a plot.
+
+Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
+cryptocurrencies
+ 
+Author: Ilyas Agakishiev
+
+See also: RL_MainComputation, RL_Experiment1Leverage, RL_Experiment2Performance
+
+Submitted: 23.04.2019
+
+Input: 
+- df: Table "weights2", which contains total leverage from Experiment 2.

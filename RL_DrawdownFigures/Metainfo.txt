@@ -1,0 +1,19 @@
+
+Name of Quantlet: RL_DrawdownFigures
+
+Published in: A leveraged investment strategy using Deep Reinforcement Learning
+
+Description: Outputs the drawdown for each time period as a plot.
+
+Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
+cryptocurrencies
+ 
+Author: Ilyas Agakishiev
+
+See also: RL_MainComputation, RL_CoinFigures
+
+Submitted: 23.04.2019
+
+Input: 
+- df: Tables "10mdd.csv", "40mdd.csv" or "50mdd.csv", which contain drawdowns from Experiment 1
+      with a target drawdown of 10%, 40% and 50%, respectively.

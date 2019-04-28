@@ -1,0 +1,20 @@
+
+Name of Quantlet: RL_Experiment2Performance
+
+Published in: A leveraged investment strategy using Deep Reinforcement Learning
+
+Description: Outputs the performance of the algorithm for the test period as a plot. Additionally
+plots performance of (modified) CRIX and the algorithm without leverage.
+
+Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
+cryptocurrencies
+ 
+Author: Ilyas Agakishiev
+
+See also: RL_MainComputation, RL_Experiment2Leverage, RL_Experiment1Performance
+
+Submitted: 23.04.2019
+
+Input: 
+- df: Table "Performance2", which contains total capital for the algorithm, the no-leverage values 
+      and CRIX from Experiment 2 in the test period.

@@ -17,7 +17,7 @@
   },
 
   "input":{
-    "window_size":31,
+    "window_size":30,
     "coin_number":11,
     "global_period":1800,
     "feature_number":3,

@@ -99,31 +99,25 @@ class NNAgent:
 
         def loss_function7():
             mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
-            return -mean/(tf.sqrt(var+1e-10))            
+            return -mean / (tf.sqrt(var + 1e-10))            
 
         def tf_while_condition(x, loop_counter):
             return tf.not_equal(loop_counter, 0)
 
         def tf_while_body(x, loop_counter):
             loop_counter -= 1
-            y = tf.concat(([x[0]], x[:-1]), axis=0)
-            z = tf.maximum(x, y)
+            y             = tf.concat(([x[0]], x[:-1]), axis=0)
+            z             = tf.maximum(x, y)
             return z, loop_counter
 
-        def with_last_w():
+        def loss_function8():
+            D_target  = tf.constant(0.1)
             mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
-            cp = tf.cumprod(self.pv_vector)
-            cm, _ = tf.while_loop(cond=tf_while_condition, body=tf_while_body, loop_vars=(cp, tf.size(cp)))
-            mdd = tf.reduce_max((cm-cp)/cm)
-            return -mean+tf.square(tf.maximum(mdd-tf.constant(0.1),0))
-        
-   
-        def loss_function_leverage():
-            mean, var = tf.nn.moments(tf.log(self.pv_vector), axes=[0])
-            cp = tf.cumprod(self.pv_vector)
-            cm, _ = tf.while_loop(cond=tf_while_condition, body=tf_while_body, loop_vars=(cp, tf.size(cp)))
-            mdd = tf.reduce_max(cm/cp)-tf.constant(1.0)
-            return -mean/mdd
+            cp        = tf.cumprod(self.pv_vector)
+            cm, _     = tf.while_loop(cond=tf_while_condition, body=tf_while_body, loop_vars=(cp, tf.size(cp)))
+            mdd       = tf.reduce_max((cm - cp) / cm)
+            return -mean + tf.square(tf.maximum(mdd - D_target,0))
+
 
         loss_function = loss_function5
         if self.__config["training"]["loss_function"] == "loss_function4":
@@ -135,9 +129,7 @@ class NNAgent:
         elif self.__config["training"]["loss_function"] == "loss_function7":
             loss_function = loss_function7
         elif self.__config["training"]["loss_function"] == "loss_function8":
-            loss_function = with_last_w
-        elif self.__config["training"]["loss_function"] == "loss_function9":
-            loss_function = loss_function_leverage    
+            loss_function = loss_function8
 
         loss_tensor = loss_function()
         regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
