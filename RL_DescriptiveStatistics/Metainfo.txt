@@ -1,13 +1,11 @@
 
 Name of Quantlet: RL_DescriptiveStatistics
 
-Published in: A leveraged investment strategy using Deep Reinforcement Learning
+Published in: 'A leveraged investment strategy using Deep Reinforcement Learning'
 
-Description: Outputs descriptive statistics for all coins used in the experiments (prices relative
-to Bitcoin, from 07/2015 to 10/2018, if available).
+Description: 'Outputs descriptive statistics for all coins used in the experiments (prices relative to Bitcoin, from 07/2015 to 10/2018, if available).'
 
-Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrency
+Keywords: 'reinforcement learning, neural network, machine learning, portfolio management, cryptocurrency'
  
 Author: Ilyas Agakishiev
 

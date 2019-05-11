@@ -1,12 +1,11 @@
 
 Name of Quantlet: RL_Experiment1Leverage
 
-Published in: A leveraged investment strategy using Deep Reinforcement Learning
+Published in: 'A leveraged investment strategy using Deep Reinforcement Learning'
 
-Description: Outputs the leverage for each time period as a plot.
+Description: 'Outputs the leverage for each time period as a plot.'
 
-Keywords: reinforcement learning, neural network, machine learning, portfolio management, 
-cryptocurrency
+Keywords: 'reinforcement learning, neural network, machine learning, portfolio management, cryptocurrency'
  
 Author: Ilyas Agakishiev
 
